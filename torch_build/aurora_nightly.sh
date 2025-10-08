@@ -17,8 +17,8 @@ export http_proxy=http://proxy.alcf.anl.gov:3128
 #
 TMP_WORK=/tmp/torch_build_dir
 mkdir -p ${TMP_WORK}
-CONDA_ENV_INSTALL_DIR=$TMP_WORK/conda_env
-TSTAMP=20251007
+TSTAMP=20251008
+CONDA_ENV_INSTALL_DIR=/tmp/conda_torch
 mkdir -p /flare/datascience/vhat/build_torch/envs/nightly_${TSTAMP}
 CONDA_ENV_NAME=pytorch_dev${TSTAMP}_oneapi_2025.2.0_pti_0.12.3_numpy_2.2.6_python3.12.8
 
@@ -154,17 +154,17 @@ done
 
 pip install --no-cache-dir numpy==2.2.6
 
-MAX_JOBS=32 python setup.py bdist_wheel --dist-dir ${TMP_WORK}/${CONDA_ENV_NAME} 2>&1 | tee ${TMP_WORK}/${CONDA_ENV_NAME}/"torch-build-whl-$(tstamp).log"
+MAX_JOBS=32 python setup.py bdist_wheel --dist-dir ${TMP_WORK} 2>&1 | tee ${TMP_WORK}/"torch-build-whl-$(tstamp).log"
 echo "Finished building PyTorch nightly wheel with oneapi/2025.2.0, PTI-0.12.3 and numpy-2.2.6"
-LOCAL_WHEEL_LOC=${TMP_WORK}/${CONDA_ENV_NAME}
 
-pip install --no-deps --no-cache-dir --force-reinstall $LOCAL_WHEEL_LOC/torch-*.whl 2>&1 | tee ${TMP_WORK}/${CONDA_ENV_NAME}/"torch-install-$(tstamp).log"
+LOCAL_WHEEL_LOC=${TMP_WORK}
+
+pip install --no-deps --no-cache-dir --force-reinstall $LOCAL_WHEEL_LOC/torch-*.whl 2>&1 | tee ${TMP_WORK}/"torch-install-$(tstamp).log"
 echo "Finished installing the wheel and dependencies"
- 
 
 pip install --no-cache-dir -r /flare/AuroraGPT/vhat/TT_MoE/torchtitan_main/torchtitan/requirements.txt
 
-cd /tmp/torch_build_dir/conda_env/
+cd $TMP_WORK
 tar -cf $CONDA_ENV_NAME.tar -C $CONDA_ENV_INSTALL_DIR $CONDA_ENV_NAME
 cp $LOCAL_WHEEL_LOC/torch-*.whl /flare/datascience/vhat/build_torch/envs/
 cp $CONDA_ENV_NAME.tar /flare/datascience/vhat/build_torch/envs/nightly_${TSTAMP}
