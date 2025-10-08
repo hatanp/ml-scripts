@@ -17,6 +17,7 @@ fi
 ENVNAME=$2
 
 TARFILE=$ENVPATH$ENVNAME.tar
+mkdir -p /tmp/conda_torch
 mpiexec -n ${NNODES} --ppn 1 cp $TARFILE /tmp/
-mpiexec -n ${NNODES} --ppn 1 tar -xf /tmp/$ENVNAME.tar -C /tmp
-conda activate /tmp/$ENVNAME
+mpiexec -n ${NNODES} --ppn 1 tar -xf /tmp/$ENVNAME.tar -C /tmp/conda_torch
+conda activate /tmp/conda_torch/$ENVNAME
